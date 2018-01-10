@@ -22,6 +22,10 @@ class StoryTodos extends Component
       todos: props.state.todos
       filter: props.state.filter
     @
+  
+  componentWillMount: ->
+    @props.actions.fetchAll()
+    @
 
   componentWillReceiveProps: (nextProps) ->
     {
@@ -33,13 +37,14 @@ class StoryTodos extends Component
       filter
     }
     @
-
+  
   render: ->
+    
     {
       c_div
       c_List
     } = CFX
-
+    # 将 isCompleted 分为 false true 两组塞给data
     Packet = (bool, data) ->
       data.reduce (r, c) =>
         [
@@ -56,38 +61,37 @@ class StoryTodos extends Component
     ,
       c_List
         data:
-          if @state.filter is 'active'
-          then Packet false, @state.todos
-          else if @state.filter is 'completed'
-          then Packet true , @state.todos
-          else @state.todos
+          switch @state.filter
+            when 'active' then Packet false, @state.todos
+            when 'completed' then Packet true, @state.todos
+            when 'all' then @state.todos
+        #点击list样式更改
         styleChange: (
           (objectId, isCompleted) ->
             if isCompleted is true
               textDecorationLine: 'line-through'
               opacity: 0.4
-
         ).bind @
-
+        #删除
         Delete: (
           (key) ->
-            @props.actions.removeOne
+            @props.actions.delete
               objectId: key
         ).bind @
-
+        #更改 isCompleted
         hasClick: (
           (key, todo, isCompleted) ->
             console.log key, todo, isCompleted
-            @props.actions.patch
+            @props.actions.update
               objectId: key
               todo: todo
               isCompleted: !isCompleted
         ).bind @
-
+        #更改输入的todo值
         Patch: (
           (key, value, isCompleted) ->
             console.log '2', isCompleted
-            @props.actions.patch
+            @props.actions.update
               objectId: key
               todo: value
               isCompleted: isCompleted
@@ -97,9 +101,13 @@ mapStateToProps = (state) ->
   getState state.todosRedux
 
 mapActionToProps =
-  removeOne: actions.todoRemove
-  patch: actions.todoPatch
+  # patch: actions.todoPatch
+  # remove: actions.todoRemove
 
+  delete: actions.todoDelete
+  update: actions.todoUpdate
+  fetchAll: actions.todoFetchAll
+  
 export default connect(
   mapStateToProps
   mapActionToProps

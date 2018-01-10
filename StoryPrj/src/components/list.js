@@ -43,6 +43,11 @@ StoryTodos = class StoryTodos extends Component {
     this;
   }
 
+  componentWillMount() {
+    this.props.actions.fetchAll();
+    return this;
+  }
+
   componentWillReceiveProps(nextProps) {
     var filter, todos;
     ({todos, filter} = nextProps.state);
@@ -59,7 +64,16 @@ StoryTodos = class StoryTodos extends Component {
       }, []);
     };
     return c_div({}, c_List({
-      data: this.state.filter === 'active' ? Packet(false, this.state.todos) : this.state.filter === 'completed' ? Packet(true, this.state.todos) : this.state.todos,
+      data: (function() {
+        switch (this.state.filter) {
+          case 'active':
+            return Packet(false, this.state.todos);
+          case 'completed':
+            return Packet(true, this.state.todos);
+          case 'all':
+            return this.state.todos;
+        }
+      }).call(this),
       styleChange: (function(objectId, isCompleted) {
         if (isCompleted === true) {
           return {
@@ -69,13 +83,13 @@ StoryTodos = class StoryTodos extends Component {
         }
       }).bind(this),
       Delete: (function(key) {
-        return this.props.actions.removeOne({
+        return this.props.actions.delete({
           objectId: key
         });
       }).bind(this),
       hasClick: (function(key, todo, isCompleted) {
         console.log(key, todo, isCompleted);
-        return this.props.actions.patch({
+        return this.props.actions.update({
           objectId: key,
           todo: todo,
           isCompleted: !isCompleted
@@ -83,7 +97,7 @@ StoryTodos = class StoryTodos extends Component {
       }).bind(this),
       Patch: (function(key, value, isCompleted) {
         console.log('2', isCompleted);
-        return this.props.actions.patch({
+        return this.props.actions.update({
           objectId: key,
           todo: value,
           isCompleted: isCompleted
@@ -99,8 +113,11 @@ mapStateToProps = function(state) {
 };
 
 mapActionToProps = {
-  removeOne: actions.todoRemove,
-  patch: actions.todoPatch
+  // patch: actions.todoPatch
+  // remove: actions.todoRemove
+  delete: actions.todoDelete,
+  update: actions.todoUpdate,
+  fetchAll: actions.todoFetchAll
 };
 
 export default connect(mapStateToProps, mapActionToProps, StoryTodos);

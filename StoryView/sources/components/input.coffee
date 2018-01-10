@@ -41,7 +41,6 @@ export default ->
       else (selector) =>
         console.log 'Pls use props selector.'
         console.log selector
-
     onSelect = (opt) =>
       selector opt.props.value
 

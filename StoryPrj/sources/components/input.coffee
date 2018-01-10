@@ -16,7 +16,6 @@ CFX = prefixDom {
   Input
   HotKeys
 }
-console.log actions
 class StoryTodos extends Component
 
   constructor: (props) ->
@@ -36,7 +35,7 @@ class StoryTodos extends Component
     @
 
   render: ->
-
+    
     {
       c_Input
       c_HotKeys
@@ -47,18 +46,21 @@ class StoryTodos extends Component
         submit: 'enter'
       handlers:
         submit: ( ->
-          @props.actions.save todo: @state.todo
+          # @props.actions.save todo: @state.todo
+          @props.actions.create todo: @state.todo
           @refs.RefInput.refs.RefInput.clearInput()
         ).bind @
     ,
       c_Input
         ref: 'RefInput'
         filter: @state.filter
+        ##冒泡框筛选状态 active completed all
         selector: (
           (filter) ->
             @props.actions.filterSave
               filter: filter
         ).bind @
+        #input框输入值穿到state
         onChange: (
           (v) ->
             @setState todo: v
@@ -70,7 +72,10 @@ mapStateToProps = (state) ->
 
 mapActionToProps =
   filterSave: actions.filterSave
-  save: actions.todoSave
+  
+  # save: actions.todoSave
+
+  create: actions.todoCreate
 
 export default connect(
   mapStateToProps

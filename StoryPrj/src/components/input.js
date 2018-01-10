@@ -37,8 +37,6 @@ import {
 
 CFX = prefixDom({Input, HotKeys});
 
-console.log(actions);
-
 StoryTodos = class StoryTodos extends Component {
   constructor(props) {
     super(props);
@@ -65,7 +63,8 @@ StoryTodos = class StoryTodos extends Component {
       },
       handlers: {
         submit: (function() {
-          this.props.actions.save({
+          // @props.actions.save todo: @state.todo
+          this.props.actions.create({
             todo: this.state.todo
           });
           return this.refs.RefInput.refs.RefInput.clearInput();
@@ -74,11 +73,13 @@ StoryTodos = class StoryTodos extends Component {
     }, c_Input({
       ref: 'RefInput',
       filter: this.state.filter,
+      //#冒泡框筛选状态 active completed all
       selector: (function(filter) {
         return this.props.actions.filterSave({
           filter: filter
         });
       }).bind(this),
+      //input框输入值穿到state
       onChange: (function(v) {
         return this.setState({
           todo: v
@@ -96,7 +97,9 @@ mapStateToProps = function(state) {
 
 mapActionToProps = {
   filterSave: actions.filterSave,
-  save: actions.todoSave
+  
+  // save: actions.todoSave
+  create: actions.todoCreate
 };
 
 export default connect(mapStateToProps, mapActionToProps, StoryTodos);
